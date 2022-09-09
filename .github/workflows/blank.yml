@@ -32,7 +32,7 @@ jobs:
           script: |
             await github.rest.repos.createDispatchEvent({
               owner: 'Doozers',
-              repo: 'mockRelease',
+              repo: 'mockRealease',
               event_type: 'Release on stores - Push on master',
               client_payload: {"commit_message":${{ env.commit_message }}},
             })
