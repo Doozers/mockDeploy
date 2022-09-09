@@ -18,18 +18,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: setup jq
+        
+      - name: setup commit
         env:
           EVENT: ${{ toJson(github.event) }}
-        uses: sergeysova/jq-action@v2
-        with:
-          cmd: |
-            echo "$EVENT" > $RUNNER_TEMP/event
-            echo "commit_message=$(jq '.
-            | select(.commits != null)
-            | .after as $last_commit
-            | .commits
-            | map(select(.id == $last_commit))[0].message' $RUNNER_TEMP/event)" >> $GITHUB_ENV
+        run:
+          echo "commit_message="Merge pull request #4364 from lucasdc99/feat/implem-settings-tests"" >> $GITHUB_ENV
           
       - name: Dispatch event to release repo
         uses: actions/github-script@v6
