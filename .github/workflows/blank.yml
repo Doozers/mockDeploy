@@ -18,24 +18,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Setup asdf
-        uses: asdf-vm/actions/setup@v1
-
-      - name: Setup jq
-        run: |
-          asdf plugin add jq
-          asdf install jq
-      - name: Get last commit message
+      - name: setup jq
         env:
           EVENT: ${{ toJson(github.event) }}
-        run: |
-          echo "$EVENT" > $RUNNER_TEMP/event
-          echo "commit_message=$(jq '.
-          | select(.commits != null)
-          | .after as $last_commit
-          | .commits
-          | map(select(.id == $last_commit))[0].message' $RUNNER_TEMP/event)" >> $GITHUB_ENV
+        uses: sergeysova/jq-action@v2
+        with:
+          cmd: |
+            echo "$EVENT" > $RUNNER_TEMP/event
+            echo "commit_message=$(jq '.
+            | select(.commits != null)
+            | .after as $last_commit
+            | .commits
+            | map(select(.id == $last_commit))[0].message' $RUNNER_TEMP/event)" >> $GITHUB_ENV
           
       - name: Dispatch event to release repo
         uses: actions/github-script@v6
