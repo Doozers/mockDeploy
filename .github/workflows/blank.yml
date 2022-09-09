@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  release-on-stores:
+    name: Release on stores
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup asdf
+        uses: asdf-vm/actions/setup@v1
+
+      - name: Setup jq
+        run: |
+          asdf plugin add jq
+          asdf install jq
+      - name: Get last commit message
+        env:
+          EVENT: ${{ toJson(github.event) }}
+        run: |
+          echo "$EVENT" > $RUNNER_TEMP/event
+          echo "commit_message=$(jq '.
+          | select(.commits != null)
+          | .after as $last_commit
+          | .commits
+          | map(select(.id == $last_commit))[0].message' $RUNNER_TEMP/event)" >> $GITHUB_ENV
+          
+      - name: Dispatch event to release repo
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.REPOSITORY_DISPATCH }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'Doozers',
+              repo: 'mockRelease',
+              event_type: 'Release on stores - Push on master',
+              client_payload: {"commit_message":${{ env.commit_message }}},
+            })
