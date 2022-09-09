@@ -23,7 +23,7 @@ jobs:
         env:
           EVENT: ${{ toJson(github.event) }}
         run:
-          echo "commit_message="Merge pull request \#4364 from lucasdc99/feat/implem-settings-tests"" >> $GITHUB_ENV
+          echo "commit_message=\"Merge pull request \#4364 from lucasdc99/feat/implem-settings-tests\"" >> $GITHUB_ENV
           
       - name: Dispatch event to release repo
         uses: actions/github-script@v6
